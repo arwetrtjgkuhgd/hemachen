@@ -1,8 +1,7 @@
 <template>
   <div id="app">
-    <router-link to="">点我啊</router-link>
-    <img alt="Vue logo" src="./assets/logo.png">
-    <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
+    <!-- <router-link to="">点我啊</router-link> -->
+    <el-button>点我啊</el-button>
   </div>
 </template>
 
@@ -12,7 +11,6 @@
 export default {
   name: 'App',
   components: {
-    // HelloWorld
   }
 }
 </script>
