@@ -1,18 +1,16 @@
 <template>
   <div id="app">
+    <router-view></router-view>
     <!-- <router-link to="">点我啊</router-link> -->
     <el-button>点我啊</el-button>
   </div>
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld.vue'
-
 export default {
-  name: 'App',
-  components: {
-  }
-}
+  name: "App",
+  components: {}
+};
 </script>
 
 <style>
