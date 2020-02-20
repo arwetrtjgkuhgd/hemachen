@@ -9,7 +9,7 @@
         <span class="line"></span>
         <span class="right_title">用户登录</span>
       </div>
-
+      <!-- 表单 -->
       <el-form
         :model="ruleForm"
         :rules="rules"
@@ -41,10 +41,9 @@
           <el-row>
             <el-col :span="17">
               <el-input
+                clearable
                 v-model="ruleForm.code"
                 placeholder="请输入验证码"
-                show-password
-                clearable
                 prefix-icon="el-icon-key"
               ></el-input>
             </el-col>
@@ -54,8 +53,8 @@
           </el-row>
         </el-form-item>
 
-        <el-form-item prop="checked" class="checked_box">
-          <el-checkbox v-model="checked">
+        <el-form-item prop="check" class="checked_box">
+          <el-checkbox v-model="ruleForm.check">
             我已阅读并同意
             <el-link type="primary">用户协议</el-link>和
             <el-link type="primary">隐私条款</el-link>
@@ -76,21 +75,22 @@
 export default {
   data() {
     return {
-      checked: "",
       ruleForm: {
         name: "",
         pass: "",
         code: "",
-        checked: ""
+        check: false
       },
       rules: {
         user: [
-          { required: true, message: "请输入账号", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
+          { required: true, message: "请输入手机号", trigger: "blur" },
+          { min: 11, max: 11, message: "手机号码为11为数", trigger: "blur" }
         ],
         pass: [{ required: true, message: "请输入密码", trigger: "blur" }],
         code: [{ required: true, message: "请输入验证码", trigger: "blur" }],
-        checked: [{ required: true, message: "请勾选我已阅读", trigger: "blur" }]
+        check: [
+          { pattern: /true/, message: "请勾选我已阅读", trigger: "change" }
+        ]
       }
     };
   },
@@ -154,17 +154,21 @@ export default {
         margin-left: 12px;
       }
     }
+
     .login_code {
       width: 100%;
       height: 40px;
     }
+
     .checked_box {
       display: flex;
       align-items: center;
     }
+
     .btn {
       width: 100%;
     }
+
     .btn:nth-child(2) {
       margin-left: 0px;
       margin-top: 26px;
