@@ -63,24 +63,32 @@
 
         <el-form-item>
           <el-button class="btn" type="primary" @click="submitForm">登录</el-button>
-          <el-button class="btn" type="primary">注册</el-button>
+          <el-button class="btn" type="primary" @click="registe">注册</el-button>
         </el-form-item>
       </el-form>
     </div>
     <img src="./images/login_banner_ele.png" alt />
+    <!-- 用户注册 -->
+    <register ref="reg"></register>
   </div>
 </template>
 
 <script>
+import register from "./components/register.vue";
 export default {
+  components: {
+    register
+  },
   data() {
     return {
       ruleForm: {
+        // 用户登录的
         name: "",
         pass: "",
         code: "",
         check: false
       },
+
       rules: {
         user: [
           { required: true, message: "请输入手机号", trigger: "blur" },
@@ -95,6 +103,7 @@ export default {
     };
   },
   methods: {
+    // 登录点击事件
     submitForm() {
       // 判断所有规则有没有符合规矩
       this.$refs.ruleForm.validate(valid => {
@@ -105,6 +114,10 @@ export default {
           return false;
         }
       });
+    },
+    // 注册点击事件
+    registe() {
+      this.$refs.reg.dialogFormVisible = true;
     }
   }
 };
