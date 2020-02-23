@@ -48,7 +48,7 @@
               ></el-input>
             </el-col>
             <el-col :span="7">
-              <img class="login_code" src="./images/login_captcha.png" alt />
+              <img class="login_code" @click="btnImg" :src="imageUrl" alt />
             </el-col>
           </el-row>
         </el-form-item>
@@ -75,15 +75,17 @@
 
 <script>
 import register from "./components/register.vue";
+import { login } from "@/api/login.js";
 export default {
   components: {
     register
   },
   data() {
     return {
+      imageUrl: process.env.VUE_APP_URL + "/captcha?type=login",
       ruleForm: {
         // 用户登录的
-        name: "",
+        user: "",
         pass: "",
         code: "",
         check: false
@@ -108,16 +110,36 @@ export default {
       // 判断所有规则有没有符合规矩
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
-          alert("符合规矩");
-        } else {
-          console.log("不符合规矩");
-          return false;
+          login({
+            phone: this.ruleForm.user,
+            password: this.ruleForm.pass,
+            code: this.ruleForm.code
+          }).then(res => {
+            console.log(res);
+            if (res.data.code == 200) {
+              this.$message.success("登录成功");
+              // 跳转到哪个页面
+              this.$router.push("https://www.baidu.com/");
+              // 把token保存起来
+              window.localStorage.setItem("token", res.data.data.token);
+              
+            } else {
+              // 什么错误就弹出什么错误信息
+              this.$message.error(res.data.message);
+            }
+          });
         }
       });
     },
     // 注册点击事件
     registe() {
       this.$refs.reg.dialogFormVisible = true;
+    },
+
+    // 验证码刷新
+    btnImg() {
+      this.imageUrl =
+        process.env.VUE_APP_URL + "/captcha?type=login&t=" + Date.now();
     }
   }
 };
