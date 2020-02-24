@@ -76,6 +76,7 @@
 <script>
 import register from "./components/register.vue";
 import { login } from "@/api/login.js";
+import { setItem } from "@/utilis/token.js";
 export default {
   components: {
     register
@@ -119,10 +120,10 @@ export default {
             if (res.data.code == 200) {
               this.$message.success("登录成功");
               // 跳转到哪个页面
-              this.$router.push("https://www.baidu.com/");
+              this.$router.push("index.vue");
               // 把token保存起来
-              window.localStorage.setItem("token", res.data.data.token);
-              
+              // window.localStorage.setItem("token", res.data.data.token);
+              setItem(res.data.data.token);
             } else {
               // 什么错误就弹出什么错误信息
               this.$message.error(res.data.message);

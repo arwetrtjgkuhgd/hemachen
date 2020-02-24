@@ -3,6 +3,7 @@ import VueRouter from "vue-router"
 
 // 导入登录页面的组件
 import login from "../views/login/index.vue"
+import index from "../views/index/index.vue"
 Vue.use(VueRouter)
 
 const router = new VueRouter({
@@ -10,12 +11,12 @@ const router = new VueRouter({
         {
             path: "/",
             component: login
-        }, {
-            path: "*",
-            component: login
+        },
+        {
+            path: "/index",
+            component: index
         }
     ]
 })
-
 
 export default router
