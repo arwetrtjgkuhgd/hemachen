@@ -76,7 +76,7 @@
 <script>
 import register from "./components/register.vue";
 import { login } from "@/api/login.js";
-import { setItem } from "@/utilis/token.js";
+import { setToken } from "@/utilis/token.js";
 export default {
   components: {
     register
@@ -86,10 +86,10 @@ export default {
       imageUrl: process.env.VUE_APP_URL + "/captcha?type=login",
       ruleForm: {
         // 用户登录的
-        user: "",
-        pass: "",
+        user: "18511111111",
+        pass: "12345678",
         code: "",
-        check: false
+        check: true
       },
 
       rules: {
@@ -116,14 +116,14 @@ export default {
             password: this.ruleForm.pass,
             code: this.ruleForm.code
           }).then(res => {
-            console.log(res);
+            // console.log(res);
             if (res.data.code == 200) {
               this.$message.success("登录成功");
               // 跳转到哪个页面
-              this.$router.push("index.vue");
+              this.$router.push("/index");
               // 把token保存起来
               // window.localStorage.setItem("token", res.data.data.token);
-              setItem(res.data.data.token);
+              setToken(res.data.data.token);
             } else {
               // 什么错误就弹出什么错误信息
               this.$message.error(res.data.message);
