@@ -10,14 +10,19 @@
         <span>黑马面面</span>
       </div>
       <div class="right">
-        <img :src="avatar" alt />
-        <span class="name">{{username}},你好</span>
+        <img :src="$store.state.avatar" alt />
+        <span class="name">{{ $store.state.username}},你好</span>
         <el-button type="primary" size="small" @click="quit">退出</el-button>
       </div>
     </el-header>
     <el-container>
       <el-aside class="my_aside" width="auto">
-        <el-menu router :collapse="isCollapse" default-active="/index/chart" class="el-menu-vertical-demo">
+        <el-menu
+          router
+          :collapse="isCollapse"
+          default-active="/index/chart"
+          class="el-menu-vertical-demo"
+        >
           <el-menu-item index="/index/chart">
             <i class="el-icon-pie-chart"></i>
             <span slot="title">数据概览</span>
@@ -52,8 +57,8 @@
 </template>
 
 <script>
-import { info } from "@/api/index.js";
-import { removeToken } from "@/utilis/token.js";
+// import { info } from "@/api/index.js";
+import { getToken, removeToken } from "@/utilis/token.js";
 export default {
   data() {
     return {
@@ -71,8 +76,13 @@ export default {
       })
         .then(() => {
           this.$message.success("退出成功!");
-          this.$router.push("/");
+          // 跳转页面
+          this.$router.push("/login");
+          // 删除token
           removeToken();
+          // 清空vuex数据
+          this.$store.commit("changeUser","")
+          this.$store.commit("changeAvatar","")
         })
         .catch(() => {
           this.$message({
@@ -82,13 +92,25 @@ export default {
         });
     }
   },
-  created() {
-    info().then(res => {
-      // console.log(res);
-      this.username = res.data.data.username;
-      this.avatar = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
-    });
-  }
+  beforeCreate() {
+    //如果得到null，代表没有token，也就是没有登录
+    if (getToken() == null) {
+      this.$message.error("请先登录");
+      this.$router.push("/login");
+    }
+  },
+  // created() {
+    // info().then(res => {
+    //   if (res.data.code == 200) {
+    //     this.username = res.data.data.username;
+    //     this.avatar = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
+    //   } else if (res.data.code == 206) {
+    //     this.$message.error("登录异常");
+    //     removeToken();
+    //     this.$router.push("/login");
+    //   }
+    // });
+  // }
 };
 </script>
 
