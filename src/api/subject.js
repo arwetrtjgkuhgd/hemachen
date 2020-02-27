@@ -32,3 +32,29 @@ export function subjectStatus(data) {
         data
     })
 }
+
+// 学科添加
+export function subjectAdd(data) {
+    return subjectRequset({
+        url: "/subject/add",
+        method: "post",
+        data
+    })
+}
+
+// 学科编辑
+export function subjectEdit() {
+    return subjectRequset({
+        url: "/subject/edit",
+        method: "post"
+    })
+}
+
+// 学科删除
+export function subjectRemove(data) {
+    return subjectRequset({
+        url: "/subject/remove",
+        method: "post",
+        data
+    })
+}

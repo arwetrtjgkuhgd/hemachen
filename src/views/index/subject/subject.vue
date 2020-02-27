@@ -43,7 +43,7 @@
         </el-table-column>
         <el-table-column label="操作" width="190">
           <template slot-scope="scope">
-            <el-button type="text">编辑</el-button>
+            <el-button @click="changEdit(scope.row)" type="text">编辑</el-button>
             <el-button
               type="text"
               @click="changStatus(scope.row)"
@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { subjectList, subjectStatus } from "@/api/subject.js";
+import { subjectList, subjectStatus, subjectEdit } from "@/api/subject.js";
 import additional from "./components/additional.vue";
 export default {
   components: {
@@ -106,6 +106,12 @@ export default {
         // 只要刷新表格就行了
         // 刷新表格其实就是对表格重新赋值
         this.getList();
+      });
+    },
+    // 学科编辑
+    changEdit() {
+      subjectEdit().then(res => {
+        console.log("学科编辑", res);
       });
     },
     handleSizeChange(val) {
