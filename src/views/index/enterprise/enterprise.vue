@@ -1,21 +1,21 @@
 <template>
   <div>
     <el-card class="box-card">
-      <el-form :inline="true" :model="formInline" class="demo-form-inline">
-        <el-form-item label="企业编号">
-          <el-input class="show" v-model="formInline.rid"></el-input>
+      <el-form ref="formInline" :inline="true" :model="formInline" class="demo-form-inline">
+        <el-form-item label="企业编号" prop="eid">
+          <el-input class="show" v-model="formInline.eid"></el-input>
         </el-form-item>
-        <el-form-item label="企业名称">
-          <el-input class="normal" v-model="formInline.user"></el-input>
+        <el-form-item label="企业名称" prop="name">
+          <el-input class="normal" v-model="formInline.name"></el-input>
         </el-form-item>
-        <el-form-item label="创建者">
+        <el-form-item label="创建者" prop="username">
           <el-input class="show" v-model="formInline.username"></el-input>
         </el-form-item>
 
-        <el-form-item label="状态">
-          <el-select class="normal" v-model="formInline.region" placeholder="请选择状态">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+        <el-form-item label="状态" prop="status">
+          <el-select class="normal" v-model="formInline.status" placeholder="请选择状态">
+            <el-option label="启用" value="1"></el-option>
+            <el-option label="禁用" value="0"></el-option>
           </el-select>
         </el-form-item>
 
@@ -30,18 +30,17 @@
     <el-card class="box-card">
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="index" prop="date" label="序号" width="50"></el-table-column>
-        <el-table-column prop="rid" label="企业编号" width="130"></el-table-column>
-        <el-table-column prop="name" label="企业名称" width="140"></el-table-column>
-        <el-table-column prop="short_name" label="简称" width="130"></el-table-column>
-        <el-table-column prop="username" label="创建者" width="130"></el-table-column>
-        <el-table-column prop="create_time" label="创建日期" width="190"></el-table-column>
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="eid" label="企业编号"></el-table-column>
+        <el-table-column prop="name" label="企业名称"></el-table-column>
+        <el-table-column prop="username" label="创建者"></el-table-column>
+        <el-table-column prop="create_time" label="创建日期"></el-table-column>
+        <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
             <span v-if="scope.row.status === 1">启用</span>
             <span v-else style="color:rgba(255,61,61,1);">禁用</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="190">
+        <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="text">编辑</el-button>
             <el-button
@@ -63,11 +62,20 @@
         :total="total"
       ></el-pagination>
     </el-card>
+    <enterpriseAdd ref="regdialog"></enterpriseAdd>
+    <enterpriseEdit ref="editdialog"></enterpriseEdit>
   </div>
 </template>
 
 <script>
+import { enterpriseList } from "@/api/enterprise.js";
+import enterpriseAdd from "./components/enterpriseAdd.vue";
+import enterpriseEdit from "./components/enterpriseEdit.vue";
 export default {
+  components: {
+    enterpriseAdd,
+    enterpriseEdit
+  },
   data() {
     return {
       page: 1, //当前页是第几页
@@ -78,11 +86,36 @@ export default {
     };
   },
   methods: {
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+    // 获取学科列表的函数
+    getList() {
+      enterpriseList({
+        // 传值
+        page: this.page,
+        limit: this.size,
+
+        // 结构符
+        ...this.formInline
+      }).then(res => {
+        // console.log(res);
+        // 拿到接口上的值，赋给本地的值
+        this.tableData = res.data.data.items;
+        this.total = res.data.data.pagination.total;
+      });
     },
+
+    // 页容量改变事件
+    handleSizeChange(val) {
+      this.size = val;
+      this.page = 1;
+      this.getList();
+      // console.log(`每页 ${val} 条`);
+    },
+
+    // 页码改变事件
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.page = val;
+      this.getList();
+      // console.log(`当前页: ${val}`);
     }
   }
 };

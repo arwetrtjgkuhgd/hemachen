@@ -1,28 +1,32 @@
 <template>
   <div>
     <el-card class="box-card">
-      <el-form :inline="true" :model="formInline" class="demo-form-inline">
-        <el-form-item label="学科编号">
+      <el-form ref="formInline" :inline="true" :model="formInline" class="demo-form-inline">
+        <el-form-item label="学科编号" prop="rid">
           <el-input class="show" v-model="formInline.rid"></el-input>
         </el-form-item>
-        <el-form-item label="学科名称">
-          <el-input class="normal" v-model="formInline.user"></el-input>
+        <el-form-item label="学科名称" prop="name">
+          <el-input class="normal" v-model="formInline.name"></el-input>
         </el-form-item>
-        <el-form-item label="创建者">
+        <el-form-item label="创建者" prop="username">
           <el-input class="show" v-model="formInline.username"></el-input>
         </el-form-item>
 
-        <el-form-item label="状态">
-          <el-select class="normal" v-model="formInline.region" placeholder="请选择状态">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+        <el-form-item label="状态" prop="status">
+          <el-select class="normal" v-model="formInline.status" placeholder="请选择状态">
+            <el-option label="启用" value="1"></el-option>
+            <el-option label="禁用" value="0"></el-option>
           </el-select>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary">搜索</el-button>
-          <el-button>清除</el-button>
-          <el-button @click="additional" type="primary" icon="el-icon-plus">新增学科</el-button>
+          <el-button type="primary" @click="search">搜索</el-button>
+          <el-button @click="eliminate">清除</el-button>
+          <el-button
+            @click="$refs.regdialog.dialogFormVisible = true"
+            type="primary"
+            icon="el-icon-plus"
+          >新增学科</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -48,7 +52,7 @@
               type="text"
               @click="changStatus(scope.row)"
             >{{scope.row.status === 1 ? "禁用" : "启用"}}</el-button>
-            <el-button type="text">删除</el-button>
+            <el-button type="text" @click="Remove(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -57,13 +61,13 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="page"
-        :page-sizes="[10, 20, 30, 40]"
+        :page-sizes="[5, 10, 20, 30, 40]"
         :page-size="size"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
       ></el-pagination>
       <!-- 分页标签：el-pagination
-          size-change：
+          size-change：页容量改变就触发
           current-change:当前页码改变就触发
 
           current-page：当前页是第几页
@@ -73,31 +77,80 @@
           total：数据的总条数（数据的总数量）
       -->
     </el-card>
-    <additional ref="reg"></additional>
+    <subjectAdd ref="regdialog"></subjectAdd>
+    <subjectEdit ref="editdialog"></subjectEdit>
   </div>
 </template>
 
 <script>
-import { subjectList, subjectStatus, subjectEdit } from "@/api/subject.js";
-import additional from "./components/additional.vue";
+import { subjectList, subjectStatus, subjectRemove } from "@/api/subject.js";
+import subjectAdd from "./components/subjectAdd.vue";
+import subjectEdit from "./components/subjectEdit.vue";
 export default {
   components: {
-    additional
+    subjectAdd,
+    subjectEdit
   },
   data() {
     return {
       page: 1, //当前页是第几页
-      size: 10, //页容量
+      size: 5, //页容量
       total: 0, //数据总量
       formInline: {}, //行内表单绑定数据
-      tableData: []
+      tableData: [], //表格绑定的数据
+      isFirst: null // 判断是否第一次
     };
   },
   methods: {
-    // 新增学科
-    additional() {
-      this.$refs.reg.dialogFormVisible = true;
+    // 删除
+    Remove(item) {
+      this.$confirm("确认删除该数据, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          subjectRemove({ id: item.id }).then(res => {
+            if (res.data.code == 200) {
+              this.$message.success("删除成功！");
+              if (this.tableData.length == 1) {
+                this.page--;
+              }
+              if (this.page == 0) {
+                this.page = 1;
+              }
+              this.getList();
+            } else {
+              // 提示错误信息
+              this.$message.error(res.data.message);
+            }
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     },
+
+    //编辑事件
+    changEdit(items) {
+      // console.log(items);
+      this.$refs.editdialog.dialogFormVisible = true;
+
+      if (items != this.isFirst) {
+        this.$refs.editdialog.form = { ...items };
+        this.isFirst = items;
+      }
+    },
+
+    // 搜索事件
+    search() {
+      // console.log(this.formInline);
+      this.getList();
+    },
+
     // 修改学科状态
     changStatus(items) {
       subjectStatus({ id: items.id }).then(() => {
@@ -108,25 +161,49 @@ export default {
         this.getList();
       });
     },
-    // 学科编辑
-    changEdit() {
-      subjectEdit().then(res => {
-        console.log("学科编辑", res);
-      });
-    },
+
+    // 页容量改变事件
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.size = val;
+      this.page = 1;
+      this.getList();
+      // console.log(`每页 ${val} 条`);
     },
+
+    // 页码改变事件
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.page = val;
+      this.getList();
+      // console.log(`当前页: ${val}`);
     },
+
     // 获取学科列表的函数
     getList() {
-      subjectList().then(res => {
+      subjectList({
+        // 传值
+        page: this.page,
+        limit: this.size,
+
+        // 结构符
+        ...this.formInline
+        // name: this.formInline.name,
+        // rid: this.formInline.rid,
+        // username: this.formInline.username,
+        // status: this.formInline.status
+      }).then(res => {
         // console.log(res);
+        // 拿到接口上的值，赋给本地的值
         this.tableData = res.data.data.items;
-        this.total = this.tableData.length;
+        this.total = res.data.data.pagination.total;
       });
+    },
+
+    // 清除
+    eliminate() {
+      this.$refs.formInline.resetFields();
+      // 清除后，从新渲染数据
+      this.page = 1;
+      this.getList();
     }
   },
   created() {

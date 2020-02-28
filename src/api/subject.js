@@ -43,10 +43,11 @@ export function subjectAdd(data) {
 }
 
 // 学科编辑
-export function subjectEdit() {
+export function subjectEdit(data) {
     return subjectRequset({
         url: "/subject/edit",
-        method: "post"
+        method: "post",
+        data
     })
 }
 
