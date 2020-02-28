@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import App from './App.vue'
 
+// 导入全局过滤器
+import "./utilis/filter.js"
+
 // 路由导入
 import router from "./router/index"
 import store from "./store/store"

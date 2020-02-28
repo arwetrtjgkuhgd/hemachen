@@ -38,7 +38,9 @@
         <el-table-column prop="name" label="学科名称" width="140"></el-table-column>
         <el-table-column prop="short_name" label="简称" width="130"></el-table-column>
         <el-table-column prop="username" label="创建者" width="130"></el-table-column>
-        <el-table-column prop="create_time" label="创建日期" width="190"></el-table-column>
+        <el-table-column prop="create_time" label="创建日期" width="190">
+          <template slot-scope="scope">{{ scope.row.create_time | formatime }}</template>
+        </el-table-column>
         <el-table-column prop="status" label="状态" width="100">
           <template slot-scope="scope">
             <span v-if="scope.row.status === 1">启用</span>

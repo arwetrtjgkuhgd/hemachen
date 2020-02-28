@@ -1,6 +1,7 @@
 import axios from "axios"
 import { getToken } from "@/utilis/token.js";
 
+// 克隆
 let enterpriseRequset = axios.create({
     baseURL: process.env.VUE_APP_URL,
     withCredentials: true

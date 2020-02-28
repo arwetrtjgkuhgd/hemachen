@@ -36,10 +36,7 @@ export default {
   data() {
     return {
       dialogFormVisible: false, // 是否显示对话框
-      form: {
-        rid: "",
-        name: ""
-      },
+      form: {},
       rules: {
         rid: [{ required: true, message: "学科编号不能为空", trigger: "blur" }],
         name: [{ required: true, message: "学科名称不能为空", trigger: "blur" }]
