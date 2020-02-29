@@ -22,11 +22,7 @@
         <el-form-item>
           <el-button type="primary" @click="search">搜索</el-button>
           <el-button @click="eliminate">清除</el-button>
-          <el-button
-            @click="$refs.regdialog.dialogFormVisible = true"
-            type="primary"
-            icon="el-icon-plus"
-          >新增学科</el-button>
+          <el-button @click="changAdd" type="primary" icon="el-icon-plus">新增学科</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -43,7 +39,7 @@
         </el-table-column>
         <el-table-column prop="status" label="状态" width="100">
           <template slot-scope="scope">
-            <span v-if="scope.row.status === 1">启用</span>
+            <span v-if="scope.row.status == 1">启用</span>
             <span v-else style="color:rgba(255,61,61,1);">禁用</span>
           </template>
         </el-table-column>
@@ -53,7 +49,7 @@
             <el-button
               type="text"
               @click="changStatus(scope.row)"
-            >{{scope.row.status === 1 ? "禁用" : "启用"}}</el-button>
+            >{{scope.row.status == 1 ? "禁用" : "启用"}}</el-button>
             <el-button type="text" @click="Remove(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -79,19 +75,22 @@
           total：数据的总条数（数据的总数量）
       -->
     </el-card>
-    <subjectAdd ref="regdialog"></subjectAdd>
-    <subjectEdit ref="editdialog"></subjectEdit>
+    <!-- <subjectAdd ref="regdialog"></subjectAdd>
+    <subjectEdit ref="editdialog"></subjectEdit>-->
+    <subjectDialog ref="regdialog"></subjectDialog>
   </div>
 </template>
 
 <script>
 import { subjectList, subjectStatus, subjectRemove } from "@/api/subject.js";
-import subjectAdd from "./components/subjectAdd.vue";
-import subjectEdit from "./components/subjectEdit.vue";
+// import subjectAdd from "./components/subjectAdd.vue";
+// import subjectEdit from "./components/subjectEdit.vue";
+import subjectDialog from "./components/subjectDialog.vue";
 export default {
   components: {
-    subjectAdd,
-    subjectEdit
+    // subjectAdd,
+    // subjectEdit
+    subjectDialog
   },
   data() {
     return {
@@ -104,6 +103,23 @@ export default {
     };
   },
   methods: {
+    // 新增
+    changAdd() {
+      this.$refs.regdialog.dialogFormVisible = true;
+      this.$refs.regdialog.isFrie = true;
+      this.$refs.regdialog.form = {};
+    },
+
+    //编辑事件
+    changEdit(items) {
+      this.$refs.regdialog.dialogFormVisible = true;
+      this.$refs.regdialog.isFrie = false;
+      if (items != this.isFirst) {
+        this.$refs.regdialog.form = { ...items };
+        this.isFirst = items;
+      }
+    },
+
     // 删除
     Remove(item) {
       this.$confirm("确认删除该数据, 是否继续?", "提示", {
@@ -136,20 +152,9 @@ export default {
         });
     },
 
-    //编辑事件
-    changEdit(items) {
-      // console.log(items);
-      this.$refs.editdialog.dialogFormVisible = true;
-
-      if (items != this.isFirst) {
-        this.$refs.editdialog.form = { ...items };
-        this.isFirst = items;
-      }
-    },
-
     // 搜索事件
     search() {
-      // console.log(this.formInline);
+      this.page = 1;
       this.getList();
     },
 

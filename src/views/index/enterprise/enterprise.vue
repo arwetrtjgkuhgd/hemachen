@@ -22,11 +22,7 @@
         <el-form-item>
           <el-button type="primary" @click="searchClick">搜索</el-button>
           <el-button @click="eliminate">清除</el-button>
-          <el-button
-            type="primary"
-            icon="el-icon-plus"
-            @click="$refs.regdialog.dialogFormVisible = true"
-          >新增企业</el-button>
+          <el-button type="primary" icon="el-icon-plus" @click="changAdd">新增企业</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -42,7 +38,7 @@
         </el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
-            <span v-if="scope.row.status === 1">启用</span>
+            <span v-if="scope.row.status == 1">启用</span>
             <span v-else style="color:rgba(255,61,61,1);">禁用</span>
           </template>
         </el-table-column>
@@ -52,7 +48,7 @@
             <el-button
               type="text"
               @click="changStatus(scope.row)"
-            >{{scope.row.status === 1 ? "禁用" : "启用"}}</el-button>
+            >{{scope.row.status == 1 ? "禁用" : "启用"}}</el-button>
             <el-button type="text" @click="Remove(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -68,8 +64,9 @@
         :total="total"
       ></el-pagination>
     </el-card>
-    <enterpriseAdd ref="regdialog"></enterpriseAdd>
-    <enterpriseEdit ref="editdialog"></enterpriseEdit>
+    <!-- <enterpriseAdd ref="regdialog"></enterpriseAdd>
+    <enterpriseEdit ref="editdialog"></enterpriseEdit>-->
+    <enterpriseDialog ref="regDialog"></enterpriseDialog>
   </div>
 </template>
 
@@ -79,12 +76,14 @@ import {
   enterpriseStatus,
   enterpriseRemove
 } from "@/api/enterprise.js";
-import enterpriseAdd from "./components/enterpriseAdd.vue";
-import enterpriseEdit from "./components/enterpriseEdit.vue";
+// import enterpriseAdd from "./components/enterpriseAdd.vue";
+// import enterpriseEdit from "./components/enterpriseEdit.vue";
+import enterpriseDialog from "./components/enterpriseDialog.vue";
 export default {
   components: {
-    enterpriseAdd,
-    enterpriseEdit
+    // enterpriseAdd,
+    // enterpriseEdit
+    enterpriseDialog
   },
   data() {
     return {
@@ -97,6 +96,23 @@ export default {
     };
   },
   methods: {
+    // 新增
+    changAdd() {
+      this.$refs.regDialog.dialogFormVisible = true;
+      this.$refs.regDialog.isAdd = true;
+      this.$refs.regDialog.form = {};
+    },
+
+    //编辑事件
+    changEdit(items) {
+      this.$refs.regDialog.dialogFormVisible = true;
+      this.$refs.regDialog.isAdd = false;
+      if (items != this.isFirst) {
+        this.$refs.regDialog.form = { ...items };
+        this.isFirst = items;
+      }
+    },
+
     // 获取学科列表的函数
     getList() {
       enterpriseList({
@@ -116,6 +132,7 @@ export default {
 
     // 搜索事件
     searchClick() {
+      this.page = 1;
       this.getList();
     },
 
@@ -164,17 +181,6 @@ export default {
       enterpriseStatus({ id: items.id }).then(() => {
         this.getList();
       });
-    },
-
-    //编辑事件
-    changEdit(items) {
-      this.$refs.editdialog.dialogFormVisible = true;
-      // console.log(items);
-
-      if (items != this.isFirst) {
-        this.$refs.editdialog.form = { ...items };
-        this.isFirst = items;
-      }
     },
 
     // 页容量改变事件
