@@ -10,16 +10,9 @@ import "nprogress/nprogress.css"
 import login from "../views/login/index.vue"
 // 登录页面的组件
 import index from "../views/index/index"
-// 数据概览
-import chart from "../views/index/chart/chart.vue"
-// 用户列表
-import user from "../views/index/user/user.vue"
-// 题库列表
-import question from "../views/index/question/question.vue"
-// 企业列表
-import enterprise from "../views/index/enterprise/enterprise.vue"
-// 学科列表
-import subject from "../views/index/subject/subject.vue"
+// 导入子组件
+import children from "@/utilis/children.js"
+
 Vue.use(VueRouter)
 
 import { info } from "@/api/index.js";
@@ -28,19 +21,13 @@ import { Message } from 'element-ui';
 
 const router = new VueRouter({
     routes: [
-        { path: "/login", component: login, meta: { title: "登录" } },
+        { path: "/login", component: login, meta: { title: "登录", roles: ["超级管理员", "管理员", "老师", "学生"] } },
         { path: "/", redirect: login },
         {
             path: "/index",
             component: index,
-            meta: { title: "首页" } ,
-            children: [
-                { path: "chart", component: chart, meta: { title: "数据概览" } },  // 数据概览
-                { path: "user", component: user, meta: { title: "用户列表" } },  // 用户列表
-                { path: "question", component: question, meta: { title: "题库列表" } },  // 题库列表
-                { path: "enterprise", component: enterprise, meta: { title: "企业列表" } },  // 企业列表
-                { path: "subject", component: subject, meta: { title: "学科列表" } },  // 学科列表
-            ]
+            meta: { title: "首页", roles: ["超级管理员", "管理员", "老师", "学生"] },
+            children
         }
     ]
 })
@@ -57,6 +44,7 @@ router.beforeEach((to, from, next) => {
         next();  // 放行
     } else {
         info().then(res => {
+            // console.log(res);
             // 判断token
             if (res.data.code == 206) {
                 // 提示
@@ -67,11 +55,31 @@ router.beforeEach((to, from, next) => {
                 NProgress.done();
                 next("/login");
             } else {
+                // 如果是启用,那么就放行
+                if (res.data.data.status == 1) {
+                    // 取出数据存到vuex
+                    store.commit("changeUser", res.data.data.username)
+                    store.commit("changeAvatar", process.env.VUE_APP_URL + "/" + res.data.data.avatar)
+                    store.commit("changeRoles", res.data.data.role)
+                    // 如果是从登陆页过来的就提示用户
+                    if (from.path == "/login") {
+                        Message.success("登录成功");
+                    }
+                    // 判断meta里的roles数组是否包含一个元素
+                    if (to.meta.roles.includes(res.data.data.role)) {
+                        next();  // 包含就放行
+                    } else {
+                        //代表没有权限访问，就从哪来的就回到哪
+                        Message.warning('该页面，你无权访问！')
+                        NProgress.done();
+                        next(from.path)
 
-                store.commit("changeUser", res.data.data.username)
-                store.commit("changeAvatar", process.env.VUE_APP_URL + "/" + res.data.data.avatar)
-
-                next();
+                    }
+                } else {
+                    Message.warning('账号被禁用，请与管理员联系')
+                    NProgress.done();
+                    next('/login')
+                }
             }
         });
     }

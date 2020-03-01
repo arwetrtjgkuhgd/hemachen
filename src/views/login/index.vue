@@ -118,7 +118,7 @@ export default {
           }).then(res => {
             // console.log(res);
             if (res.data.code == 200) {
-              this.$message.success("登录成功");
+              // this.$message.success("登录成功");
               // 跳转到哪个页面
               this.$router.push("/index");
               // 把token保存起来

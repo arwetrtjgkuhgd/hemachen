@@ -9,15 +9,6 @@ export function userList(params) {
     })
 }
 
-// 修改用户状态。启用或者禁用账号
-export function userStatus(data) {
-    return requset({
-        url: "/user/status",
-        method: "post",
-        data
-    })
-}
-
 // 后台创建用户
 export function userAdd(data) {
     return requset({
@@ -45,11 +36,12 @@ export function userRemove(data) {
     })
 }
 
-// 获取token
-export function userToken(data) {
+// 修改用户状态。启用或者禁用账号
+export function userStatus(data) {
     return requset({
-        url: "/token",
+        url: "/user/status",
         method: "post",
         data
     })
 }
+

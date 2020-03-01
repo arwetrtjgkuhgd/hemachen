@@ -226,7 +226,6 @@ export default {
 <style lang="less">
 .el-dialog__header {
   background: linear-gradient(to right, #11bfee, #2491e9);
-
   .el-dialog__title {
     color: #fff;
   }
@@ -262,5 +261,8 @@ export default {
   width: 178px;
   height: 178px;
   display: block;
+}
+.avatar-uploader .el-upload .el-icon-plus {
+  line-height: 178px;
 }
 </style>
