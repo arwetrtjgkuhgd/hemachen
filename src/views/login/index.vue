@@ -48,7 +48,7 @@
               ></el-input>
             </el-col>
             <el-col :span="7">
-              <img class="login_code" @click="btnImg" :src="imageUrl" alt />
+              <img @click="btnImg" class="login_code" :src="imgUrl" alt />
             </el-col>
           </el-row>
         </el-form-item>
@@ -83,7 +83,9 @@ export default {
   },
   data() {
     return {
-      imageUrl: process.env.VUE_APP_URL + "/captcha?type=login",
+      // 图片验证码地址
+      imgUrl: process.env.VUE_APP_URL + "/captcha?type=login",
+      // 跟表单双向绑定的数据
       ruleForm: {
         // 用户登录的
         user: "18511111111",
@@ -98,7 +100,7 @@ export default {
           { min: 11, max: 11, message: "手机号码为11为数", trigger: "blur" }
         ],
         pass: [{ required: true, message: "请输入密码", trigger: "blur" }],
-        code: [{ required: true, message: "请输入验证码", trigger: "blur" }],
+        // code: [{ required: true, message: "请输入验证码", trigger: "blur" }],
         check: [
           { pattern: /true/, message: "请勾选我已阅读", trigger: "change" }
         ]
@@ -109,27 +111,45 @@ export default {
     // 登录点击事件
     submitForm() {
       // 判断所有规则有没有符合规矩
-      this.$refs.ruleForm.validate(valid => {
-        if (valid) {
+      this.$refs.ruleForm.validate(v => {
+        if (v) {
+          // 正儿八经发请求比较合理
           login({
             phone: this.ruleForm.user,
             password: this.ruleForm.pass,
             code: this.ruleForm.code
           }).then(res => {
-            // console.log(res);
             if (res.data.code == 200) {
-              // this.$message.success("登录成功");
-              // 跳转到哪个页面
-              this.$router.push("/index");
-              // 把token保存起来
-              // window.localStorage.setItem("token", res.data.data.token);
+              //把token存起来
+              // window.localStorage.setItem('token',res.data.data.token)
               setToken(res.data.data.token);
+              // 在登录这里就提示了登录成功
+              // this.$message.success('登录成功')
+              // 提示后去做路由跳转了（所以后面会被导航守卫拦截下来）
+              this.$router.push("/index");
             } else {
-              // 什么错误就弹出什么错误信息
               this.$message.error(res.data.message);
             }
           });
         }
+        // if (v) {
+        //   login({
+        //     phone: this.ruleForm.user,
+        //     password: this.ruleForm.pass,
+        //     code: this.ruleForm.code
+        //   }).then(res => {
+        //     console.log(res);
+        //     // if (res.data.code == 202) {
+        //     //   // 跳转到哪个页面
+        //     //   this.$router.push("/index");
+        //     //   // 把token保存起来
+        //     //   setToken(res.data.data.token);
+        //     // } else {
+        //     //   // 什么错误就弹出什么错误信息
+        //     //   this.$message.error(res.data.message);
+        //     // }
+        //   });
+        // }
       });
     },
     // 注册点击事件
@@ -139,7 +159,7 @@ export default {
 
     // 验证码刷新
     btnImg() {
-      this.imageUrl =
+      this.imgUrl =
         process.env.VUE_APP_URL + "/captcha?type=login&t=" + Date.now();
     }
   }

@@ -3,11 +3,7 @@
     <el-card class="box-card">
       <el-form ref="formInline" :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="学科" prop="subject">
-          <el-select class="show" v-model="formInline.subject" placeholder="请选择学科">
-            <el-option label="管理员" value="2"></el-option>
-            <el-option label="老师" value="3"></el-option>
-            <el-option label="学生" value="4"></el-option>
-          </el-select>
+          <subjectSelect class="show" v-model="formInline.subject"></subjectSelect>
         </el-form-item>
 
         <el-form-item label="阶段" prop="step">
@@ -19,11 +15,7 @@
         </el-form-item>
 
         <el-form-item label="企业" prop="enterprise">
-          <el-select class="show" v-model="formInline.enterprise" placeholder="请选择企业">
-            <el-option label="管理员" value="2"></el-option>
-            <el-option label="老师" value="3"></el-option>
-            <el-option label="学生" value="4"></el-option>
-          </el-select>
+          <enterpriseSelect class="show" v-model="formInline.enterprise"></enterpriseSelect>
         </el-form-item>
 
         <el-form-item label="题型" prop="type">
@@ -55,7 +47,12 @@
         </el-form-item>
 
         <el-form-item label="日期" prop="create_date">
-          <el-input class="show" v-model="formInline.create_date" placeholder="请选择日期"></el-input>
+          <el-date-picker
+            class="show"
+            v-model="formInline.create_date"
+            type="date"
+            placeholder="选择日期"
+          ></el-date-picker>
         </el-form-item>
 
         <el-form-item label="标题" prop="title">
@@ -65,7 +62,11 @@
         <el-form-item>
           <el-button type="primary">搜索</el-button>
           <el-button>清除</el-button>
-          <el-button type="primary" icon="el-icon-plus">新增用户</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-plus"
+            @click="$refs.questionAdd.dialogFormVisible = true"
+          >新增用户</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -74,9 +75,20 @@
       <el-table :data="tableData" style="width: 100%" border>
         <el-table-column type="index" prop="date" label="序号" width="50"></el-table-column>
         <el-table-column prop="title" label="题目"></el-table-column>
-        <el-table-column prop="subject" label="学科，阶段"></el-table-column>
-        <el-table-column prop="type" label="题型"></el-table-column>
-        <el-table-column prop="enterprise" label="企业"></el-table-column>
+        <el-table-column prop="name" label="学科，阶段">
+          <template slot-scope="scope">
+            <!-- 用过滤器来做 -->
+            {{ scope.row | formatSubjectStep }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="type" label="题型">
+          <template slot-scope="scope">
+            <span v-if="scope.row.type == 1">单选</span>
+            <span v-else-if="scope.row.type == 2">多选</span>
+            <span v-else>简答</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="enterprise_name" label="企业"></el-table-column>
         <el-table-column prop="username" label="创建者"></el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
@@ -84,7 +96,7 @@
             <span v-else style="color:rgba(255,61,61,1);">禁用</span>
           </template>
         </el-table-column>
-        <el-table-column prop="email" label="访问量"></el-table-column>
+        <el-table-column prop="reads" label="访问量"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="userEdit(scope.row)">编辑</el-button>
@@ -107,12 +119,17 @@
         :total="total"
       ></el-pagination>
     </el-card>
+    <question-add ref="questionAdd" />
   </div>
 </template>
 
 <script>
-import { questionList } from "../../../api/question";
+import { questionList } from "@/api/question";
+import questionAdd from "./components/questionAdd.vue";
 export default {
+  components: {
+    questionAdd
+  },
   data() {
     return {
       page: 1, //当前页是第几页
@@ -148,6 +165,22 @@ export default {
       this.tableData = res.data.data.items;
       this.total = res.data.data.pagination.total;
     });
+  },
+  filters: {
+    formatSubjectStep(val) {
+      //我要拿到学科名字 val.subject_name
+      //我要拿到阶段对应的名字，那么就应该写if判断了
+      let stepName = "";
+      if (val.step == 1) {
+        stepName = "初级";
+      } else if (val.step == 2) {
+        stepName = "中级";
+      } else {
+        stepName = "高级";
+      }
+
+      return val.subject_name + " · " + stepName;
+    }
   }
 };
 </script>
@@ -169,5 +202,10 @@ export default {
 .el-pagination {
   text-align: center;
   padding-top: 20px;
+}
+.el-form-item__content .show {
+  width: 195px;
+  margin-right: 20px;
+  border-radius: 4px;
 }
 </style>

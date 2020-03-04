@@ -15,6 +15,15 @@ import 'element-ui/lib/theme-chalk/index.css';
 // 注册element-ui
 Vue.use(ElementUI);
 
+
+// 导入组件
+import subjectSelect from './components/subjectSelect.vue'
+import enterpriseSelect from './components/enterpriseSelect.vue'
+// 注册全局组件
+Vue.component('subjectSelect', subjectSelect)
+Vue.component('enterpriseSelect', enterpriseSelect)
+
+
 Vue.config.productionTip = false
 
 new Vue({
